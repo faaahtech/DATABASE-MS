@@ -7,8 +7,8 @@ from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from schemas.aluno import Aluno
-    from schemas.solicitacao_academica import SolicitacaoAcademica
+    from models.aluno import Aluno
+    from models.solicitacao_academica import SolicitacaoAcademica
 
 
 class TipoDocumento(str, Enum):

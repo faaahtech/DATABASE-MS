@@ -6,9 +6,9 @@ from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from schemas.curso_unidade import CursoUnidade
-    from schemas.disciplina import Disciplina
-    from schemas.oferta_disciplina import OfertaDisciplina
+    from models.curso_unidade import CursoUnidade
+    from models.disciplina import Disciplina
+    from models.oferta_disciplina import OfertaDisciplina
 
 
 class StatusMatrizCurricular(str, Enum):

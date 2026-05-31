@@ -7,8 +7,8 @@ from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from schemas.aluno import Aluno
-    from schemas.mensagem import Mensagem
+    from models.aluno import Aluno
+    from models.mensagem import Mensagem
 
 
 class StatusConversa(str, Enum):

@@ -5,8 +5,8 @@ from sqlalchemy import Column, Date, String, Text, UniqueConstraint
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from schemas.oferta_disciplina import OfertaDisciplina
-    from schemas.presenca import Presenca
+    from models.oferta_disciplina import OfertaDisciplina
+    from models.presenca import Presenca
 
 
 class Aula(SQLModel, table=True):

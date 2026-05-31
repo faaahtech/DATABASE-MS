@@ -4,8 +4,8 @@ from sqlalchemy import Column, Text, UniqueConstraint
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from schemas.aula import Aula
-    from schemas.matricula_disciplina import MatriculaDisciplina
+    from models.aula import Aula
+    from models.matricula_disciplina import MatriculaDisciplina
 
 
 class Presenca(SQLModel, table=True):

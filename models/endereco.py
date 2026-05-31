@@ -4,8 +4,8 @@ from sqlalchemy import Column, String
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from schemas.aluno import Aluno
-    from schemas.unidade import Unidade
+    from models.aluno import Aluno
+    from models.unidade import Unidade
 
 
 class Endereco(SQLModel, table=True):

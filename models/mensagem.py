@@ -8,7 +8,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from schemas.conversa import Conversa
+    from models.conversa import Conversa
 
 
 class RemetenteMensagem(str, Enum):

@@ -6,8 +6,8 @@ from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from schemas.aluno import Aluno
-    from schemas.professor import Professor
+    from models.aluno import Aluno
+    from models.professor import Professor
 
 
 class StatusUsuario(str, Enum):

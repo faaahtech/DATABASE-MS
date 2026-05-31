@@ -6,9 +6,9 @@ from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from schemas.calendario_academico import CalendarioAcademico
-    from schemas.curso_unidade import CursoUnidade
-    from schemas.endereco import Endereco
+    from models.calendario_academico import CalendarioAcademico
+    from models.curso_unidade import CursoUnidade
+    from models.endereco import Endereco
 
 
 class StatusUnidade(str, Enum):

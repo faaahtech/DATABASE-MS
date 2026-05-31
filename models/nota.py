@@ -5,8 +5,8 @@ from sqlalchemy import Column, Numeric, UniqueConstraint
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from schemas.avaliacao import Avaliacao
-    from schemas.matricula_disciplina import MatriculaDisciplina
+    from models.avaliacao import Avaliacao
+    from models.matricula_disciplina import MatriculaDisciplina
 
 
 class Nota(SQLModel, table=True):

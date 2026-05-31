@@ -6,7 +6,7 @@ from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from schemas.matriz_curricular import MatrizCurricular
+    from models.matriz_curricular import MatrizCurricular
 
 
 class StatusDisciplina(str, Enum):

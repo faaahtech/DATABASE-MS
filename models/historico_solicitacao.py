@@ -7,7 +7,7 @@ from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from schemas.solicitacao_academica import SolicitacaoAcademica
+    from models.solicitacao_academica import SolicitacaoAcademica
 
 
 class StatusHistoricoSolicitacao(str, Enum):

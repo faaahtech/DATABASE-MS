@@ -8,8 +8,8 @@ from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from schemas.nota import Nota
-    from schemas.oferta_disciplina import OfertaDisciplina
+    from models.nota import Nota
+    from models.oferta_disciplina import OfertaDisciplina
 
 
 class TipoAvaliacao(str, Enum):

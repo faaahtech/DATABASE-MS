@@ -7,10 +7,10 @@ from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from schemas.matricula_curso import MatriculaCurso
-    from schemas.nota import Nota
-    from schemas.oferta_disciplina import OfertaDisciplina
-    from schemas.presenca import Presenca
+    from models.matricula_curso import MatriculaCurso
+    from models.nota import Nota
+    from models.oferta_disciplina import OfertaDisciplina
+    from models.presenca import Presenca
 
 
 class StatusMatriculaDisciplina(str, Enum):

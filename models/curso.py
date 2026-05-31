@@ -6,7 +6,7 @@ from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from schemas.curso_unidade import CursoUnidade
+    from models.curso_unidade import CursoUnidade
 
 
 class StatusCurso(str, Enum):

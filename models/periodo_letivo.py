@@ -7,7 +7,7 @@ from sqlmodel import Field, Relationship, SQLModel
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from schemas.oferta_disciplina import OfertaDisciplina
+    from models.oferta_disciplina import OfertaDisciplina
 
 
 class StatusPeriodoLetivo(str, Enum):

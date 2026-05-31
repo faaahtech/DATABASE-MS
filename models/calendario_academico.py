@@ -7,7 +7,7 @@ from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from schemas.unidade import Unidade
+    from models.unidade import Unidade
 
 
 class TipoCalendarioAcademico(str, Enum):

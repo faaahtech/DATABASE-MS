@@ -7,12 +7,12 @@ from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from schemas.conversa import Conversa
-    from schemas.documento import Documento
-    from schemas.endereco import Endereco
-    from schemas.matricula_curso import MatriculaCurso
-    from schemas.solicitacao_academica import SolicitacaoAcademica
-    from schemas.usuario import Usuario
+    from models.conversa import Conversa
+    from models.documento import Documento
+    from models.endereco import Endereco
+    from models.matricula_curso import MatriculaCurso
+    from models.solicitacao_academica import SolicitacaoAcademica
+    from models.usuario import Usuario
 
 
 class StatusAluno(str, Enum):

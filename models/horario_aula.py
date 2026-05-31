@@ -7,7 +7,7 @@ from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from schemas.oferta_disciplina import OfertaDisciplina
+    from models.oferta_disciplina import OfertaDisciplina
 
 
 class DiaSemana(str, Enum):

@@ -6,10 +6,10 @@ from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from schemas.aluno import Aluno
-    from schemas.curso_unidade import CursoUnidade
-    from schemas.matricula_disciplina import MatriculaDisciplina
-    from schemas.solicitacao_academica import SolicitacaoAcademica
+    from models.aluno import Aluno
+    from models.curso_unidade import CursoUnidade
+    from models.matricula_disciplina import MatriculaDisciplina
+    from models.solicitacao_academica import SolicitacaoAcademica
 
 
 class PeriodoMatriculaCurso(str, Enum):
