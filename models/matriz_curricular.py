@@ -1,12 +1,14 @@
 from enum import Enum
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Column, Integer
+from sqlalchemy import Column, Integer, CheckConstraint
 from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
+    from schemas.curso_unidade import CursoUnidade
     from schemas.disciplina import Disciplina
+    from schemas.oferta_disciplina import OfertaDisciplina
 
 
 class StatusMatrizCurricular(str, Enum):
@@ -16,6 +18,13 @@ class StatusMatrizCurricular(str, Enum):
 
 class MatrizCurricular(SQLModel, table=True):
     __tablename__ = "matriz_curricular"
+
+    __table_args__ = (
+        CheckConstraint(
+            "semestre_recomendado > 0",
+            name="ck_matriz_curricular_semestre_recomendado",
+        ),
+    )
 
     id: int | None = Field(default=None, primary_key=True)
 
@@ -31,7 +40,9 @@ class MatrizCurricular(SQLModel, table=True):
         index=True,
     )
 
-    semestre_recomendado: int = Field(nullable=False)
+    semestre_recomendado: int = Field(
+        sa_column=Column(Integer, nullable=False)
+    )
 
     obrigatoria: bool = Field(default=True, nullable=False)
 
@@ -47,6 +58,6 @@ class MatrizCurricular(SQLModel, table=True):
         ),
     )
 
-    disciplina: "Disciplina | None" = Relationship(
-        back_populates="matrizes_curriculares"
-    )
+    curso_unidade: "CursoUnidade | None" = Relationship(back_populates="matrizes_curriculares")
+    disciplina: "Disciplina | None" = Relationship(back_populates="matrizes_curriculares")
+    ofertas_disciplina: list["OfertaDisciplina"] = Relationship(back_populates="matriz_curricular")
