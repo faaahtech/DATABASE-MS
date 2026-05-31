@@ -1,8 +1,13 @@
 from enum import Enum
+from typing import TYPE_CHECKING
 
-from sqlalchemy import Column, String, CheckConstraint
+from sqlalchemy import Column, CheckConstraint, String
 from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlmodel import Field, Relationship, SQLModel
+
+if TYPE_CHECKING:
+    from schemas.aluno import Aluno
+    from schemas.professor import Professor
 
 
 class StatusUsuario(str, Enum):
