@@ -1,6 +1,6 @@
 from datetime import date
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from sqlalchemy import Column, Date, Text, String, CheckConstraint, Integer
 from sqlalchemy import Enum as SQLAlchemyEnum
@@ -89,4 +89,4 @@ class CalendarioAcademico(SQLModel, table=True):
         ),
     )
 
-    unidade: "Unidade | None" = Relationship(back_populates="calendarios_academicos")
+    unidade: Optional["Unidade"] = Relationship(back_populates="calendarios_academicos")

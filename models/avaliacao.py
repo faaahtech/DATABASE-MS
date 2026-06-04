@@ -1,7 +1,7 @@
 from datetime import date
 from decimal import Decimal
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from sqlalchemy import Column, Date, Numeric, String, UniqueConstraint
 from sqlalchemy import Enum as SQLAlchemyEnum
@@ -62,5 +62,5 @@ class Avaliacao(SQLModel, table=True):
         sa_column=Column(Date, nullable=False)
     )
 
-    oferta_disciplina: "OfertaDisciplina | None" = Relationship(back_populates="avaliacoes")
+    oferta_disciplina: Optional["OfertaDisciplina"] = Relationship(back_populates="avaliacoes")
     notas: list["Nota"] = Relationship(back_populates="avaliacao")

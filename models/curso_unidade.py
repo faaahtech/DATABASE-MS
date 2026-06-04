@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from sqlalchemy import Column, UniqueConstraint
 from sqlalchemy import Enum as SQLAlchemyEnum
@@ -90,7 +90,7 @@ class CursoUnidade(SQLModel, table=True):
         ),
     )
 
-    curso: "Curso | None" = Relationship(back_populates="cursos_unidade")
-    unidade: "Unidade | None" = Relationship(back_populates="cursos_unidade")
+    curso: Optional["Curso"] = Relationship(back_populates="cursos_unidade")
+    unidade: Optional["Unidade"] = Relationship(back_populates="cursos_unidade")
     matrizes_curriculares: list["MatrizCurricular"] = Relationship(back_populates="curso_unidade")
     matriculas_curso: list["MatriculaCurso"] = Relationship(back_populates="curso_unidade")

@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from sqlalchemy import Column, String
 from sqlalchemy import Enum as SQLAlchemyEnum
@@ -45,5 +45,5 @@ class Professor(SQLModel, table=True):
         ),
     )
 
-    usuario: "Usuario | None" = Relationship(back_populates="professor")
+    usuario: Optional["Usuario"] = Relationship(back_populates="professor")
     ofertas_disciplina: list["OfertaDisciplina"] = Relationship(back_populates="professor")

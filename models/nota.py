@@ -1,5 +1,5 @@
 from decimal import Decimal
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from sqlalchemy import Column, Numeric, UniqueConstraint
 from sqlmodel import Field, Relationship, SQLModel
@@ -38,5 +38,5 @@ class Nota(SQLModel, table=True):
         sa_column=Column(Numeric(5, 2), nullable=False)
     )
 
-    avaliacao: "Avaliacao | None" = Relationship(back_populates="notas")
-    matricula_disciplina: "MatriculaDisciplina | None" = Relationship(back_populates="notas")
+    avaliacao: Optional["Avaliacao"] = Relationship(back_populates="notas")
+    matricula_disciplina: Optional["MatriculaDisciplina"] = Relationship(back_populates="notas")

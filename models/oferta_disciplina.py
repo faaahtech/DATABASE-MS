@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from sqlalchemy import Column, CheckConstraint, Integer, String
 from sqlalchemy import Enum as SQLAlchemyEnum
@@ -97,9 +97,9 @@ class OfertaDisciplina(SQLModel, table=True):
         ),
     )
 
-    matriz_curricular: "MatrizCurricular | None" = Relationship(back_populates="ofertas_disciplina")
-    professor: "Professor | None" = Relationship(back_populates="ofertas_disciplina")
-    periodo_letivo: "PeriodoLetivo | None" = Relationship(back_populates="ofertas_disciplina")
+    matriz_curricular: Optional["MatrizCurricular"] = Relationship(back_populates="ofertas_disciplina")
+    professor: Optional["Professor"] = Relationship(back_populates="ofertas_disciplina")
+    periodo_letivo: Optional["PeriodoLetivo"] = Relationship(back_populates="ofertas_disciplina")
     horarios_aula: list["HorarioAula"] = Relationship(back_populates="oferta_disciplina")
     aulas: list["Aula"] = Relationship(back_populates="oferta_disciplina")
     matriculas_disciplina: list["MatriculaDisciplina"] = Relationship(back_populates="oferta_disciplina")

@@ -1,6 +1,6 @@
 from datetime import time
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from sqlalchemy import Column, String, Time, UniqueConstraint
 from sqlalchemy import Enum as SQLAlchemyEnum
@@ -64,4 +64,4 @@ class HorarioAula(SQLModel, table=True):
         sa_column=Column(String(50), nullable=False)
     )
 
-    oferta_disciplina: "OfertaDisciplina | None" = Relationship(back_populates="horarios_aula")
+    oferta_disciplina: Optional["OfertaDisciplina"] = Relationship(back_populates="horarios_aula")

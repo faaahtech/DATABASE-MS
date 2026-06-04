@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from sqlalchemy import Column, String
 from sqlalchemy import Enum as SQLAlchemyEnum
@@ -43,6 +43,6 @@ class Unidade(SQLModel, table=True):
         ),
     )
 
-    endereco: "Endereco | None" = Relationship(back_populates="unidades")
+    endereco: Optional["Endereco"] = Relationship(back_populates="unidades")
     cursos_unidade: list["CursoUnidade"] = Relationship(back_populates="unidade")
     calendarios_academicos: list["CalendarioAcademico"] = Relationship(back_populates="unidade")

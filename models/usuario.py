@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from sqlalchemy import Column, CheckConstraint, String
 from sqlalchemy import Enum as SQLAlchemyEnum
@@ -99,5 +99,5 @@ class Usuario(SQLModel, table=True):
         sa_column=Column(String(255), nullable=True),
     )
 
-    aluno: "Aluno | None" = Relationship(back_populates="usuario")
-    professor: "Professor | None" = Relationship(back_populates="usuario")
+    aluno: Optional["Aluno"] = Relationship(back_populates="usuario")
+    professor: Optional["Professor"] = Relationship(back_populates="usuario")

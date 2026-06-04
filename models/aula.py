@@ -1,5 +1,5 @@
 from datetime import date
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from sqlalchemy import Column, Date, String, Text, UniqueConstraint
 from sqlmodel import Field, Relationship, SQLModel
@@ -42,5 +42,5 @@ class Aula(SQLModel, table=True):
         sa_column=Column(Text, nullable=True),
     )
 
-    oferta_disciplina: "OfertaDisciplina | None" = Relationship(back_populates="aulas")
+    oferta_disciplina: Optional["OfertaDisciplina"] = Relationship(back_populates="aulas")
     presencas: list["Presenca"] = Relationship(back_populates="aula")

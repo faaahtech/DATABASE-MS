@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from sqlalchemy import Column, Text, UniqueConstraint
 from sqlmodel import Field, Relationship, SQLModel
@@ -40,5 +40,5 @@ class Presenca(SQLModel, table=True):
         sa_column=Column(Text, nullable=True),
     )
 
-    matricula_disciplina: "MatriculaDisciplina | None" = Relationship(back_populates="presencas")
-    aula: "Aula | None" = Relationship(back_populates="presencas")
+    matricula_disciplina: Optional["MatriculaDisciplina"] = Relationship(back_populates="presencas")
+    aula: Optional["Aula"] = Relationship(back_populates="presencas")

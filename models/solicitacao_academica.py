@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 from sqlalchemy import Column, DateTime, String, Text
 from sqlalchemy import Enum as SQLAlchemyEnum
@@ -106,7 +106,7 @@ class SolicitacaoAcademica(SQLModel, table=True):
         sa_column=Column(Text, nullable=True),
     )
 
-    aluno: "Aluno | None" = Relationship(back_populates="solicitacoes_academicas")
-    matricula_curso: "MatriculaCurso | None" = Relationship(back_populates="solicitacoes_academicas")
+    aluno: Optional["Aluno"] = Relationship(back_populates="solicitacoes_academicas")
+    matricula_curso: Optional["MatriculaCurso"] = Relationship(back_populates="solicitacoes_academicas")
     historicos: list["HistoricoSolicitacao"] = Relationship(back_populates="solicitacao_academica")
     documentos: list["Documento"] = Relationship(back_populates="solicitacao_academica")

@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import TYPE_CHECKING, Any
+from typing import Optional, TYPE_CHECKING, Any
 
 from sqlalchemy import Column, DateTime, Text
 from sqlalchemy import Enum as SQLAlchemyEnum
@@ -73,4 +73,4 @@ class Mensagem(SQLModel, table=True):
         sa_column=Column(DateTime, nullable=False),
     )
 
-    conversa: "Conversa | None" = Relationship(back_populates="mensagens")
+    conversa: Optional["Conversa"] = Relationship(back_populates="mensagens")
