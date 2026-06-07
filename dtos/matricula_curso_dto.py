@@ -15,4 +15,5 @@ class MatriculaCursoRead(SQLModel):
     id: int
     id_aluno: int
     id_curso_unidade: int
-    ra:
+    ra: str
+    semestre
