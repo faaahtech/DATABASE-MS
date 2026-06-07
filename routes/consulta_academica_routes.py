@@ -7,6 +7,7 @@ from dtos.consulta_dto import (
     OfertaDisciplinaRead,
     PeriodoLetivoAtivoRead,
     ResumoAlunoRead,
+    ResumoSemestreAtualRead,
 )
 from dtos.nota_dto import NotaPorAlunoRead
 from dtos.presenca_dto import PresencaPorAlunoRead
@@ -101,6 +102,18 @@ async def consultar_presencas_por_aluno(
         limit=limit,
         offset=offset,
     )
+
+
+@router.get(
+    "/aluno/{id_aluno}/resumo-semestre-atual",
+    response_model=ResumoSemestreAtualRead,
+    status_code=status.HTTP_200_OK,
+)
+async def consultar_resumo_semestre_atual(
+    id_aluno: int,
+    session: AsyncSession = Depends(get_session),
+) -> ResumoSemestreAtualRead:
+    return await controller.consultar_resumo_semestre_atual(session=session, id_aluno=id_aluno)
 
 
 @router.get(

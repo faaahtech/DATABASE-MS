@@ -5,6 +5,7 @@ from dtos.consulta_dto import (
     OfertaDisciplinaRead,
     PeriodoLetivoAtivoRead,
     ResumoAlunoRead,
+    ResumoSemestreAtualRead,
 )
 from dtos.nota_dto import NotaPorAlunoRead
 from dtos.presenca_dto import PresencaPorAlunoRead
@@ -55,6 +56,13 @@ class ConsultaAcademicaController:
         id_aluno: int,
     ) -> ResumoAlunoRead:
         return await self.service.consultar_resumo_aluno(session=session, id_aluno=id_aluno)
+
+    async def consultar_resumo_semestre_atual(
+        self,
+        session: AsyncSession,
+        id_aluno: int,
+    ) -> ResumoSemestreAtualRead:
+        return await self.service.consultar_resumo_semestre_atual(session=session, id_aluno=id_aluno)
 
     async def consultar_notas_por_aluno(
         self,

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Query, Response, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from controller.calendario_academico_controller import CalendarioAcademicoController
@@ -29,6 +29,32 @@ async def list_calendarios_academicos(
     session: AsyncSession = Depends(get_session),
 ) -> list[CalendarioAcademicoRead]:
     return await controller.list_calendarios_academicos(session=session, limit=limit, offset=offset)
+
+
+@router.get("/aluno/{id_aluno}/pdf", status_code=status.HTTP_200_OK)
+async def get_calendario_pdf_by_aluno(
+    id_aluno: int,
+    session: AsyncSession = Depends(get_session),
+) -> Response:
+    pdf_bytes = await controller.gerar_pdf_by_aluno(session=session, id_aluno=id_aluno)
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"inline; filename=calendario_academico_aluno_{id_aluno}.pdf"},
+    )
+
+
+@router.get("/unidade/{id_unidade}/pdf", status_code=status.HTTP_200_OK)
+async def get_calendario_pdf_by_unidade(
+    id_unidade: int,
+    session: AsyncSession = Depends(get_session),
+) -> Response:
+    pdf_bytes = await controller.gerar_pdf_by_unidade(session=session, id_unidade=id_unidade)
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"inline; filename=calendario_academico_unidade_{id_unidade}.pdf"},
+    )
 
 
 @router.get("/unidade/{id_unidade}", response_model=list[CalendarioAcademicoRead], status_code=status.HTTP_200_OK)

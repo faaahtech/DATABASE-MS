@@ -1,6 +1,7 @@
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from dtos.aluno_dto import AlunoCreate, AlunoListItem, AlunoRead
+from dtos.llm_academico_dto import OpcoesTransferenciaHorarioRead
 from services.aluno_service import AlunoService
 
 
@@ -24,3 +25,13 @@ class AlunoController:
         offset: int = 0,
     ) -> list[AlunoListItem]:
         return await self.service.list_alunos(session=session, limit=limit, offset=offset)
+
+    async def listar_opcoes_transferencia_horario(
+        self,
+        session: AsyncSession,
+        id_aluno: int,
+    ) -> OpcoesTransferenciaHorarioRead:
+        return await self.service.listar_opcoes_transferencia_horario(
+            session=session,
+            id_aluno=id_aluno,
+        )

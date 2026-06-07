@@ -104,3 +104,19 @@ class ResumoAlunoRead(SQLModel):
     email: str
     cpf: str
     matriculas: list[MatriculaCursoRead] = Field(default_factory=list)
+
+
+class GradeResumoSemestreItemRead(SQLModel):
+    disciplina: str
+    professor: str | None = None
+    horario: str | None = None
+    dia_semana: str | None = None
+    sala: str | None = None
+
+
+class ResumoSemestreAtualRead(SQLModel):
+    id_aluno: int
+    aluno_nome: str
+    semestre_curso: int
+    periodo_letivo: str
+    grade: list[GradeResumoSemestreItemRead] = Field(default_factory=list)

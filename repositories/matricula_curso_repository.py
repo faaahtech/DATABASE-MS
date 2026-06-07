@@ -3,7 +3,7 @@ from __future__ import annotations
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from models.matricula_curso import MatriculaCurso
+from models.matricula_curso import MatriculaCurso, StatusMatriculaCurso
 
 
 class MatriculaCursoRepository:
@@ -44,6 +44,23 @@ class MatriculaCursoRepository:
         )
         result = await session.exec(statement)
         return list(result.all())
+
+    async def get_matricula_cursando_by_aluno(
+        self,
+        session: AsyncSession,
+        id_aluno: int,
+    ) -> MatriculaCurso | None:
+        statement = (
+            select(MatriculaCurso)
+            .where(
+                MatriculaCurso.id_aluno == id_aluno,
+                MatriculaCurso.status == StatusMatriculaCurso.CURSANDO,
+            )
+            .order_by(MatriculaCurso.id.desc())
+            .limit(1)
+        )
+        result = await session.exec(statement)
+        return result.first()
 
     async def update(self, session: AsyncSession, matricula_curso: MatriculaCurso) -> MatriculaCurso:
         session.add(matricula_curso)

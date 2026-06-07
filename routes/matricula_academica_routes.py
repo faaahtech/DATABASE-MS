@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from controller.matricula_curso_controller import MatriculaCursoController
-from dtos.matricula_curso_dto import MatriculaCursoRead, TransferirHorarioRequest
+from dtos.llm_academico_dto import TransferirHorarioRequest
+from dtos.matricula_curso_dto import MatriculaCursoRead
 from repositories.postgres_conn import get_session
 
 router = APIRouter(prefix="/matriculas", tags=["Matrículas - Fluxos Acadêmicos"])

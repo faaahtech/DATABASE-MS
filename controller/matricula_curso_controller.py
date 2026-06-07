@@ -1,5 +1,6 @@
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from dtos.llm_academico_dto import TransferirHorarioRequest
 from dtos.matricula_curso_dto import MatriculaCursoCreate, MatriculaCursoRead, MatriculaCursoUpdateStatus
 from services.matricula_curso_service import MatriculaCursoService
 
@@ -52,4 +53,36 @@ class MatriculaCursoController:
             session=session,
             id_matricula_curso=id_matricula_curso,
             data=data,
+        )
+
+    async def transferir_horario(
+        self,
+        session: AsyncSession,
+        id_matricula_curso: int,
+        data: TransferirHorarioRequest,
+    ) -> MatriculaCursoRead:
+        return await self.service.transferir_horario(
+            session=session,
+            id_matricula_curso=id_matricula_curso,
+            data=data,
+        )
+
+    async def trancar_matricula(
+        self,
+        session: AsyncSession,
+        id_matricula_curso: int,
+    ) -> MatriculaCursoRead:
+        return await self.service.trancar_matricula(
+            session=session,
+            id_matricula_curso=id_matricula_curso,
+        )
+
+    async def ativar_matricula(
+        self,
+        session: AsyncSession,
+        id_matricula_curso: int,
+    ) -> MatriculaCursoRead:
+        return await self.service.ativar_matricula(
+            session=session,
+            id_matricula_curso=id_matricula_curso,
         )

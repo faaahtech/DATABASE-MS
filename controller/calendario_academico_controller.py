@@ -77,3 +77,17 @@ class CalendarioAcademicoController:
             id_calendario_academico=id_calendario_academico,
             data=data,
         )
+
+    async def gerar_pdf_by_unidade(
+        self,
+        session: AsyncSession,
+        id_unidade: int,
+    ) -> bytes:
+        return await self.service.gerar_pdf_by_unidade(session=session, id_unidade=id_unidade)
+
+    async def gerar_pdf_by_aluno(
+        self,
+        session: AsyncSession,
+        id_aluno: int,
+    ) -> bytes:
+        return await self.service.gerar_pdf_by_aluno(session=session, id_aluno=id_aluno)

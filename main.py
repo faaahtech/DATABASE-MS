@@ -24,6 +24,7 @@ from routes.oferta_disciplina_routes import router as oferta_disciplina_router
 from routes.aula_routes import router as aula_router
 from routes.avaliacao_routes import router as avaliacao_router
 from routes.matricula_curso_routes import router as matricula_curso_router
+from routes.matricula_academica_routes import router as matricula_academica_router
 from routes.matricula_disciplina_routes import router as matricula_disciplina_router
 from routes.seed_routes import router as seed_router
 from routes.calendario_academico_routes import router as calendario_academico_router
@@ -66,6 +67,7 @@ app.include_router(oferta_disciplina_router)
 app.include_router(aula_router)
 app.include_router(avaliacao_router)
 app.include_router(matricula_curso_router)
+app.include_router(matricula_academica_router)
 app.include_router(matricula_disciplina_router)
 app.include_router(seed_router)
 app.include_router(calendario_academico_router)
@@ -92,4 +94,3 @@ async def healthcheck_database():
 #     if exc.status_code == 404:
 #         # Redirect to your home page or any specific route
 #         return RedirectResponse(url="/healthcheck", status_code=status.HTTP_303_SEE_OTHER)
-    

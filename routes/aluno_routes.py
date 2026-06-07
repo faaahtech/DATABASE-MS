@@ -3,6 +3,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from controller.aluno_controller import AlunoController
 from dtos.aluno_dto import AlunoCreate, AlunoListItem, AlunoRead
+from dtos.llm_academico_dto import OpcoesTransferenciaHorarioRead
 from repositories.postgres_conn import get_session
 
 router = APIRouter(prefix="/alunos", tags=["Alunos"])
@@ -24,6 +25,21 @@ async def list_alunos(
     session: AsyncSession = Depends(get_session),
 ) -> list[AlunoListItem]:
     return await controller.list_alunos(session=session, limit=limit, offset=offset)
+
+
+@router.get(
+    "/{id_aluno}/opcoes-transferencia-horario",
+    response_model=OpcoesTransferenciaHorarioRead,
+    status_code=status.HTTP_200_OK,
+)
+async def listar_opcoes_transferencia_horario(
+    id_aluno: int,
+    session: AsyncSession = Depends(get_session),
+) -> OpcoesTransferenciaHorarioRead:
+    return await controller.listar_opcoes_transferencia_horario(
+        session=session,
+        id_aluno=id_aluno,
+    )
 
 
 @router.get("/ra/{ra}", response_model=AlunoRead, status_code=status.HTTP_200_OK)

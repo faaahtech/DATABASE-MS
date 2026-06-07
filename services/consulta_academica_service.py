@@ -1,21 +1,29 @@
 from fastapi import HTTPException, status
+from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from dtos.consulta_dto import (
     DisciplinaCursoUnidadeRead,
+    GradeResumoSemestreItemRead,
     MatriculaCursoRead,
     OfertaDisciplinaRead,
     PeriodoLetivoAtivoRead,
     ResumoAlunoRead,
+    ResumoSemestreAtualRead,
 )
 from models.aluno import Aluno
 from models.disciplina import Disciplina
-from models.matricula_curso import MatriculaCurso
+from models.horario_aula import DiaSemana, HorarioAula
+from models.matricula_curso import MatriculaCurso, StatusMatriculaCurso
+from models.matricula_disciplina import MatriculaDisciplina
+from models.matriz_curricular import MatrizCurricular
 from models.oferta_disciplina import OfertaDisciplina
-from models.periodo_letivo import PeriodoLetivo
+from models.periodo_letivo import PeriodoLetivo, StatusPeriodoLetivo
+from models.professor import Professor
 from repositories.aluno_repository import AlunoRepository
 from repositories.curso_unidade_repository import CursoUnidadeRepository
 from repositories.disciplina_repository import DisciplinaRepository
+from repositories.matricula_curso_repository import MatriculaCursoRepository
 from repositories.oferta_disciplina_repository import OfertaDisciplinaRepository
 from repositories.periodo_letivo_repository import PeriodoLetivoRepository
 from services.nota_service import NotaService
@@ -29,6 +37,7 @@ class ConsultaAcademicaService:
         self.disciplina_repository = DisciplinaRepository()
         self.periodo_letivo_repository = PeriodoLetivoRepository()
         self.oferta_disciplina_repository = OfertaDisciplinaRepository()
+        self.matricula_curso_repository = MatriculaCursoRepository()
         self.nota_service = NotaService()
         self.presenca_service = PresencaService()
 
@@ -100,9 +109,6 @@ class ConsultaAcademicaService:
                 detail="Aluno não encontrado.",
             )
 
-        # Evita lazy loading assíncrono: consulta as matrículas explicitamente.
-        from sqlmodel import select
-
         statement = select(MatriculaCurso).where(MatriculaCurso.id_aluno == id_aluno)
         result = await session.exec(statement)
         matriculas = list(result.all())
@@ -115,6 +121,74 @@ class ConsultaAcademicaService:
             matriculas=[self._to_matricula_curso_read(matricula) for matricula in matriculas],
         )
 
+    async def consultar_resumo_semestre_atual(
+        self,
+        session: AsyncSession,
+        id_aluno: int,
+    ) -> ResumoSemestreAtualRead:
+        aluno = await self.aluno_repository.get_by_id(session, id_aluno)
+        if aluno is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Aluno não encontrado.")
+
+        matricula_atual = await self.matricula_curso_repository.get_matricula_cursando_by_aluno(
+            session=session,
+            id_aluno=id_aluno,
+        )
+        if matricula_atual is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Matrícula ativa do aluno não encontrada.",
+            )
+
+        periodo_letivo = await self.periodo_letivo_repository.get_ativo(session)
+        if periodo_letivo is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Nenhum período letivo ativo encontrado.",
+            )
+
+        statement = (
+            select(
+                Disciplina.nome,
+                Professor.nome,
+                HorarioAula.dia_semana,
+                HorarioAula.hora_inicio,
+                HorarioAula.hora_fim,
+                HorarioAula.sala,
+            )
+            .select_from(MatriculaDisciplina)
+            .join(OfertaDisciplina, OfertaDisciplina.id == MatriculaDisciplina.id_oferta_disciplina)
+            .join(MatrizCurricular, MatrizCurricular.id == OfertaDisciplina.id_matriz_curricular)
+            .join(Disciplina, Disciplina.id == MatrizCurricular.id_disciplina)
+            .join(Professor, Professor.id == OfertaDisciplina.id_professor)
+            .join(HorarioAula, HorarioAula.id_oferta_disciplina == OfertaDisciplina.id, isouter=True)
+            .where(
+                MatriculaDisciplina.id_matricula_curso == matricula_atual.id,
+                OfertaDisciplina.id_periodo_letivo == periodo_letivo.id,
+            )
+            .order_by(HorarioAula.dia_semana, HorarioAula.hora_inicio, Disciplina.nome)
+        )
+        result = await session.exec(statement)
+        rows = list(result.all())
+
+        grade = [
+            GradeResumoSemestreItemRead(
+                disciplina=disciplina_nome,
+                professor=professor_nome,
+                horario=self._format_horario(hora_inicio, hora_fim),
+                dia_semana=self._format_dia_semana(dia_semana),
+                sala=sala or "A definir",
+            )
+            for disciplina_nome, professor_nome, dia_semana, hora_inicio, hora_fim, sala in rows
+        ]
+
+        return ResumoSemestreAtualRead(
+            id_aluno=aluno.id,
+            aluno_nome=aluno.nome,
+            semestre_curso=matricula_atual.semestre_curso,
+            periodo_letivo=f"{periodo_letivo.ano}/{periodo_letivo.semestre}",
+            grade=grade,
+        )
 
     async def consultar_notas_por_aluno(
         self,
@@ -246,3 +320,22 @@ class ConsultaAcademicaService:
             ano_ingresso=matricula.ano_ingresso,
             semestre_ingresso=matricula.semestre_ingresso,
         )
+
+    def _format_horario(self, hora_inicio, hora_fim) -> str | None:
+        if hora_inicio is None or hora_fim is None:
+            return None
+        return f"{hora_inicio.strftime('%H:%M')} ~ {hora_fim.strftime('%H:%M')}"
+
+    def _format_dia_semana(self, dia_semana: DiaSemana | None) -> str | None:
+        if dia_semana is None:
+            return None
+        labels = {
+            DiaSemana.SEGUNDA: "Segunda-feira",
+            DiaSemana.TERCA: "Terça-feira",
+            DiaSemana.QUARTA: "Quarta-feira",
+            DiaSemana.QUINTA: "Quinta-feira",
+            DiaSemana.SEXTA: "Sexta-feira",
+            DiaSemana.SABADO: "Sábado",
+            DiaSemana.DOMINGO: "Domingo",
+        }
+        return labels.get(dia_semana, dia_semana.value)
