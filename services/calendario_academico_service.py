@@ -235,37 +235,97 @@ class CalendarioAcademicoService:
         return linhas
 
     def _build_simple_pdf(self, linhas: list[str]) -> bytes:
-        content_lines = ["BT", "/F1 11 Tf", "50 790 Td", "14 TL"]
-        usable_lines = linhas[:52]
-        for linha in usable_lines:
-            escaped = self._escape_pdf_text(linha)
-            content_lines.append(f"({escaped}) Tj")
-            content_lines.append("T*")
-        content_lines.append("ET")
-        stream = "\n".join(content_lines).encode("latin-1", errors="replace")
+        # Gerador PDF mínimo sem dependência externa.
+        # Mantém application/pdf real e pagina o conteúdo para não cortar o calendário.
+        linhas_por_pagina = 46
+        paginas = [
+            linhas[i : i + linhas_por_pagina]
+            for i in range(0, len(linhas), linhas_por_pagina)
+        ] or [["Nenhum conteúdo para exibir."]]
 
-        objects = [
-            b"1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n",
-            b"2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n",
-            b"3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>\nendobj\n",
-            b"4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n",
-            b"5 0 obj\n<< /Length " + str(len(stream)).encode() + b" >>\nstream\n" + stream + b"\nendstream\nendobj\n",
-        ]
+        objects: list[bytes] = []
+        total_pages = len(paginas)
+        font_obj_id = 3
+        first_page_obj_id = 4
 
-        pdf = bytearray(b"%PDF-1.4\n")
+        page_obj_ids = [first_page_obj_id + (index * 2) for index in range(total_pages)]
+        content_obj_ids = [page_obj_id + 1 for page_obj_id in page_obj_ids]
+        kids = " ".join(f"{page_obj_id} 0 R" for page_obj_id in page_obj_ids)
+
+        objects.append(b"1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n")
+        objects.append(
+            f"2 0 obj\n<< /Type /Pages /Kids [{kids}] /Count {total_pages} >>\nendobj\n".encode("ascii")
+        )
+        objects.append(
+            b"3 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>\nendobj\n"
+        )
+
+        for index, linhas_pagina in enumerate(paginas):
+            page_obj_id = page_obj_ids[index]
+            content_obj_id = content_obj_ids[index]
+            stream = self._build_page_stream(
+                linhas=linhas_pagina,
+                pagina_atual=index + 1,
+                total_paginas=total_pages,
+            )
+            objects.append(
+                (
+                    f"{page_obj_id} 0 obj\n"
+                    "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] "
+                    f"/Resources << /Font << /F1 {font_obj_id} 0 R >> >> "
+                    f"/Contents {content_obj_id} 0 R >>\n"
+                    "endobj\n"
+                ).encode("ascii")
+            )
+            objects.append(
+                (
+                    f"{content_obj_id} 0 obj\n<< /Length {len(stream)} >>\nstream\n"
+                ).encode("ascii")
+                + stream
+                + b"\nendstream\nendobj\n"
+            )
+
+        pdf = bytearray(b"%PDF-1.4\n%\xE2\xE3\xCF\xD3\n")
         offsets = [0]
         for obj in objects:
             offsets.append(len(pdf))
             pdf.extend(obj)
+
         xref_offset = len(pdf)
-        pdf.extend(f"xref\n0 {len(objects) + 1}\n".encode())
+        pdf.extend(f"xref\n0 {len(objects) + 1}\n".encode("ascii"))
         pdf.extend(b"0000000000 65535 f \n")
         for offset in offsets[1:]:
-            pdf.extend(f"{offset:010d} 00000 n \n".encode())
+            pdf.extend(f"{offset:010d} 00000 n \n".encode("ascii"))
         pdf.extend(
-            f"trailer\n<< /Size {len(objects) + 1} /Root 1 0 R >>\nstartxref\n{xref_offset}\n%%EOF".encode()
+            (
+                f"trailer\n<< /Size {len(objects) + 1} /Root 1 0 R >>\n"
+                f"startxref\n{xref_offset}\n%%EOF"
+            ).encode("ascii")
         )
         return bytes(pdf)
+
+    def _build_page_stream(
+        self,
+        linhas: list[str],
+        pagina_atual: int,
+        total_paginas: int,
+    ) -> bytes:
+        content_lines = ["BT", "/F1 11 Tf", "50 790 Td", "14 TL"]
+        for linha in linhas:
+            escaped = self._escape_pdf_text(linha)
+            content_lines.append(f"({escaped}) Tj")
+            content_lines.append("T*")
+
+        content_lines.extend([
+            "ET",
+            "BT",
+            "/F1 9 Tf",
+            "50 35 Td",
+            f"(Pagina {pagina_atual}/{total_paginas}) Tj",
+            "ET",
+        ])
+        # WinAnsiEncoding cobre os caracteres latinos usados no calendário em leitores PDF.
+        return "\n".join(content_lines).encode("cp1252", errors="replace")
 
     def _escape_pdf_text(self, text: str) -> str:
         return text.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")

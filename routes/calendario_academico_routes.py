@@ -13,6 +13,34 @@ from repositories.postgres_conn import get_session
 router = APIRouter(prefix="/calendario-academico", tags=["Calendário Acadêmico"])
 controller = CalendarioAcademicoController()
 
+PDF_BINARY_RESPONSE = {
+    200: {
+        "description": "Arquivo PDF do calendário acadêmico.",
+        "content": {
+            "application/pdf": {
+                "schema": {
+                    "type": "string",
+                    "format": "binary",
+                }
+            }
+        },
+    }
+}
+
+
+def _pdf_download_response(pdf_bytes: bytes, filename: str) -> Response:
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            # attachment força download no Swagger/navegador em vez de exibir o binário no painel.
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "Content-Length": str(len(pdf_bytes)),
+            "Cache-Control": "no-store",
+            "X-Content-Type-Options": "nosniff",
+        },
+    )
+
 
 @router.post("", response_model=CalendarioAcademicoRead, status_code=status.HTTP_201_CREATED)
 async def create_calendario_academico(
@@ -31,29 +59,37 @@ async def list_calendarios_academicos(
     return await controller.list_calendarios_academicos(session=session, limit=limit, offset=offset)
 
 
-@router.get("/aluno/{id_aluno}/pdf", status_code=status.HTTP_200_OK)
+@router.get(
+    "/aluno/{id_aluno}/pdf",
+    response_class=Response,
+    responses=PDF_BINARY_RESPONSE,
+    status_code=status.HTTP_200_OK,
+)
 async def get_calendario_pdf_by_aluno(
     id_aluno: int,
     session: AsyncSession = Depends(get_session),
 ) -> Response:
     pdf_bytes = await controller.gerar_pdf_by_aluno(session=session, id_aluno=id_aluno)
-    return Response(
-        content=pdf_bytes,
-        media_type="application/pdf",
-        headers={"Content-Disposition": f"inline; filename=calendario_academico_aluno_{id_aluno}.pdf"},
+    return _pdf_download_response(
+        pdf_bytes=pdf_bytes,
+        filename=f"calendario_academico_aluno_{id_aluno}.pdf",
     )
 
 
-@router.get("/unidade/{id_unidade}/pdf", status_code=status.HTTP_200_OK)
+@router.get(
+    "/unidade/{id_unidade}/pdf",
+    response_class=Response,
+    responses=PDF_BINARY_RESPONSE,
+    status_code=status.HTTP_200_OK,
+)
 async def get_calendario_pdf_by_unidade(
     id_unidade: int,
     session: AsyncSession = Depends(get_session),
 ) -> Response:
     pdf_bytes = await controller.gerar_pdf_by_unidade(session=session, id_unidade=id_unidade)
-    return Response(
-        content=pdf_bytes,
-        media_type="application/pdf",
-        headers={"Content-Disposition": f"inline; filename=calendario_academico_unidade_{id_unidade}.pdf"},
+    return _pdf_download_response(
+        pdf_bytes=pdf_bytes,
+        filename=f"calendario_academico_unidade_{id_unidade}.pdf",
     )
 
 
