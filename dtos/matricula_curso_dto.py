@@ -15,5 +15,3 @@ class MatriculaCursoCreate(SQLModel):
 
 
 class MatriculaCursoRead(SQLModel):
-    id: int
-    id
