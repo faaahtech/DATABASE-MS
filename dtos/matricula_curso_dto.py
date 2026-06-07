@@ -1,7 +1,5 @@
 from sqlmodel import SQLModel
-
 from models.matricula_curso import PeriodoMatriculaCurso, StatusMatriculaCurso
-
 
 class MatriculaCursoCreate(SQLModel):
     id_aluno: int
@@ -13,7 +11,8 @@ class MatriculaCursoCreate(SQLModel):
     ano_ingresso: int
     semestre_ingresso: int
 
-
 class MatriculaCursoRead(SQLModel):
     id: int
-    id
+    id_aluno: int
+    id_curso_unidade: int
+    ra:
