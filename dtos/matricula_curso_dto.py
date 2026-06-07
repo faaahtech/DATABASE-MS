@@ -16,4 +16,15 @@ class MatriculaCursoCreate(SQLModel):
 
 class MatriculaCursoRead(SQLModel):
     id: int
-    id
+    id_aluno: int
+    id_curso_unidade: int
+    ra: str
+    semestre_curso: int
+    periodo: PeriodoMatriculaCurso
+    status: StatusMatriculaCurso
+    ano_ingresso: int
+    semestre_ingresso: int
+
+
+class MatriculaCursoUpdateStatus(SQLModel):
+    status: Status
