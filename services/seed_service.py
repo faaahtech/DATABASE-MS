@@ -8,6 +8,11 @@ from dtos.seed_dto import SeedBaseResponse, SeedEntityRead
 from models.aluno import Aluno, StatusAluno
 from models.aula import Aula
 from models.avaliacao import Avaliacao, TipoAvaliacao
+from models.base_conhecimento import (
+    BaseConhecimento,
+    CategoriaBaseConhecimento,
+    StatusBaseConhecimento,
+)
 from models.calendario_academico import (
     CalendarioAcademico,
     StatusCalendarioAcademico,
@@ -129,6 +134,9 @@ class SeedService:
             calendario_acoes = await self._seed_calendario_academico_2026(
                 session=session,
                 id_unidade=unidade.id,
+            )
+            base_conhecimento_estagio_acoes = await self._seed_base_conhecimento_estagio_demo(
+                session=session,
             )
 
             ads_disciplinas = await self._seed_disciplinas_e_matriz(
@@ -267,6 +275,7 @@ class SeedService:
             mensagem=(
                 "Seed base executado com sucesso. "
                 f"Calendário acadêmico 2026: {len(calendario_acoes)} eventos processados. "
+                f"Base de conhecimento de estágio: {len(base_conhecimento_estagio_acoes)} tópicos processados. "
                 f"Curso adicional criado/validado: {curso_logistica.sigla} - {curso_logistica.nome}."
             ),
             curso=SeedEntityRead(id=curso_ads.id, acao=curso_ads_acao),
@@ -685,6 +694,150 @@ class SeedService:
         oferta.vagas_disponiveis -= 1
         await self.oferta_repository.update(session, oferta)
         return matricula, "created"
+
+    async def _seed_base_conhecimento_estagio_demo(
+        self,
+        session: AsyncSession,
+    ) -> list[str]:
+        topicos = self._base_conhecimento_estagio_demo_topicos()
+        acoes: list[str] = []
+        for topico in topicos:
+            _base_conhecimento, acao = await self._get_or_create_base_conhecimento(
+                session=session,
+                titulo=topico["titulo"],
+                pergunta_base=topico["pergunta_base"],
+                resposta=topico["resposta"],
+                tags=topico["tags"],
+            )
+            acoes.append(acao)
+        return acoes
+
+    async def _get_or_create_base_conhecimento(
+        self,
+        session: AsyncSession,
+        titulo: str,
+        pergunta_base: str,
+        resposta: str,
+        tags: list[str],
+    ) -> tuple[BaseConhecimento, str]:
+        statement = select(BaseConhecimento).where(
+            BaseConhecimento.categoria == CategoriaBaseConhecimento.ESTAGIO,
+            BaseConhecimento.titulo == titulo,
+        )
+        result = await session.exec(statement)
+        base_conhecimento = result.first()
+        if base_conhecimento is not None:
+            return base_conhecimento, "existing"
+
+        base_conhecimento = BaseConhecimento(
+            titulo=titulo,
+            categoria=CategoriaBaseConhecimento.ESTAGIO,
+            pergunta_base=pergunta_base,
+            resposta=resposta,
+            tags=tags,
+            status=StatusBaseConhecimento.ATIVO,
+        )
+        session.add(base_conhecimento)
+        await session.flush()
+        return base_conhecimento, "created"
+
+    def _base_conhecimento_estagio_demo_topicos(self) -> list[dict]:
+        return [
+            {
+                "titulo": "O que é estágio obrigatório",
+                "pergunta_base": "O que é o estágio obrigatório e quando ele é necessário?",
+                "resposta": (
+                    "O estágio obrigatório é uma atividade prevista no projeto pedagógico do curso e pode ser exigido "
+                    "para a conclusão da formação. Para a demo, a orientação é verificar com a coordenação do curso se "
+                    "o estágio é obrigatório, qual carga horária deve ser cumprida e em qual etapa do curso ele pode ser iniciado."
+                ),
+                "tags": ["estagio", "obrigatorio", "curso", "coordenacao"],
+            },
+            {
+                "titulo": "Estágio não obrigatório",
+                "pergunta_base": "Posso fazer estágio mesmo quando ele não é obrigatório?",
+                "resposta": (
+                    "Sim. O estágio não obrigatório pode ser realizado como atividade complementar de formação profissional, "
+                    "desde que esteja relacionado à área do curso e siga as exigências institucionais. Mesmo quando não é obrigatório, "
+                    "ele deve possuir documentação regular e acompanhamento adequado."
+                ),
+                "tags": ["estagio", "nao obrigatorio", "atividade complementar"],
+            },
+            {
+                "titulo": "Termo de compromisso de estágio",
+                "pergunta_base": "O que é o termo de compromisso de estágio?",
+                "resposta": (
+                    "O termo de compromisso de estágio é o documento que formaliza a relação entre estudante, empresa concedente "
+                    "e instituição de ensino. Para a demo, ele deve conter dados do aluno, dados da empresa, período do estágio, "
+                    "carga horária, atividades previstas e assinaturas das partes envolvidas."
+                ),
+                "tags": ["estagio", "termo de compromisso", "documentacao"],
+            },
+            {
+                "titulo": "Convênio com a empresa concedente",
+                "pergunta_base": "A empresa precisa ter convênio com a faculdade para oferecer estágio?",
+                "resposta": (
+                    "Em geral, a empresa concedente precisa estar regularizada para receber estagiários e pode ser necessário possuir "
+                    "convênio ou cadastro junto à instituição. Para fins de MVP, a assistente deve orientar o aluno a confirmar com a "
+                    "secretaria ou coordenação se a empresa já possui cadastro ativo."
+                ),
+                "tags": ["estagio", "convenio", "empresa", "secretaria"],
+            },
+            {
+                "titulo": "Plano de atividades do estágio",
+                "pergunta_base": "Quais atividades posso realizar no estágio?",
+                "resposta": (
+                    "As atividades do estágio devem estar relacionadas ao curso do aluno e precisam constar no plano de atividades. "
+                    "Esse plano ajuda a garantir que o estágio tenha finalidade educacional, evitando tarefas desconectadas da formação acadêmica."
+                ),
+                "tags": ["estagio", "plano de atividades", "atividades"],
+            },
+            {
+                "titulo": "Carga horária do estágio",
+                "pergunta_base": "Qual é a carga horária permitida para estágio?",
+                "resposta": (
+                    "A carga horária do estágio deve respeitar as regras acadêmicas e legais aplicáveis, sem prejudicar a frequência do aluno "
+                    "nas aulas. Para a demo, a orientação padrão é verificar no regulamento do curso e validar a carga horária com a coordenação antes de assinar o termo."
+                ),
+                "tags": ["estagio", "carga horaria", "horario"],
+            },
+            {
+                "titulo": "Supervisor de estágio",
+                "pergunta_base": "Quem acompanha o estágio do aluno?",
+                "resposta": (
+                    "O estágio deve ser acompanhado por um supervisor na empresa e por um responsável acadêmico indicado pela instituição ou coordenação. "
+                    "O supervisor da empresa orienta as atividades práticas, enquanto a instituição acompanha a aderência do estágio ao curso."
+                ),
+                "tags": ["estagio", "supervisor", "acompanhamento"],
+            },
+            {
+                "titulo": "Relatório de estágio",
+                "pergunta_base": "Preciso entregar relatório de estágio?",
+                "resposta": (
+                    "Sim, a entrega de relatório pode ser exigida para comprovar as atividades realizadas e a evolução do aluno. Para a demo, "
+                    "a assistente deve orientar que o relatório descreva atividades executadas, período, carga horária e avaliação do aprendizado."
+                ),
+                "tags": ["estagio", "relatorio", "avaliacao"],
+            },
+            {
+                "titulo": "Alteração ou rescisão do estágio",
+                "pergunta_base": "O que fazer se o estágio for encerrado ou alterado?",
+                "resposta": (
+                    "Se houver encerramento, mudança de horário, alteração de atividades ou troca de empresa, o aluno deve comunicar a secretaria ou coordenação. "
+                    "Dependendo do caso, pode ser necessário emitir termo aditivo, termo de rescisão ou novo termo de compromisso."
+                ),
+                "tags": ["estagio", "rescisao", "alteracao", "termo aditivo"],
+            },
+            {
+                "titulo": "Dúvidas frequentes sobre assinatura de estágio",
+                "pergunta_base": "Onde consigo ajuda para assinar documentos de estágio?",
+                "resposta": (
+                    "Para dúvidas sobre assinatura de documentos, o aluno deve procurar a secretaria acadêmica ou a coordenação do curso. "
+                    "Na demo, a assistente pode orientar o aluno a separar o termo de compromisso, plano de atividades, dados da empresa e dados do supervisor antes de solicitar análise."
+                ),
+                "tags": ["estagio", "assinatura", "documentos", "duvidas frequentes"],
+            },
+        ]
 
     async def _seed_calendario_academico_2026(
         self,
